@@ -6,6 +6,17 @@ project(FlatBuffers)
 option(FLATBUFFERS_CODE_COVERAGE "Enable the code coverage build option." OFF)
 option(FLATBUFFERS_BUILD_TESTS "Enable the build of tests and samples." ON)
 option(FLATBUFFERS_INSTALL "Enable the installation of targets." ON)
+option(FLATBUFFERS_USE_CXX03_STDLIB
+  "Use boost classes to enable C++03 stdlib compatibility" OFF)
+
+if(FLATBUFFERS_USE_CXX03_STDLIB)
+  find_package(Boost 1.41.0 REQUIRED)
+  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+endif()
+
+configure_file(include/flatbuffers/options.in.h
+  "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h")
+include_directories("${PROJECT_BINARY_DIR}/include")
 
 set(FlatBuffers_Compiler_SRCS
   "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
@@ -65,6 +76,9 @@ elseif(CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra")
+endif()
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
 endif()
 
 if(FLATBUFFERS_CODE_COVERAGE)
