@@ -113,6 +113,8 @@ endif()
 
 if(FLATBUFFERS_INSTALL)
   install(DIRECTORY include/flatbuffers DESTINATION include)
+  install(FILES "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
+    DESTINATION include/flatbuffers)
   install(TARGETS flatc DESTINATION bin)
 endif()
 
