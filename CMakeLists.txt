@@ -109,6 +109,11 @@ if(FLATBUFFERS_BUILD_TESTS)
   include_directories(${CMAKE_CURRENT_BINARY_DIR}/samples)
   add_executable(flatsamplebinary ${FlatBuffers_Sample_Binary_SRCS})
   add_executable(flatsampletext ${FlatBuffers_Sample_Text_SRCS})
+
+  enable_testing()
+  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/tests" DESTINATION
+       "${CMAKE_CURRENT_BINARY_DIR}")
+  add_test(NAME flattests COMMAND flattests)
 endif()
 
 if(FLATBUFFERS_INSTALL)
@@ -116,12 +121,4 @@ if(FLATBUFFERS_INSTALL)
   install(FILES "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
     DESTINATION include/flatbuffers)
   install(TARGETS flatc DESTINATION bin)
-endif()
-
-if(FLATBUFFERS_BUILD_TESTS)
-  enable_testing()
-
-  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/tests" DESTINATION
-       "${CMAKE_CURRENT_BINARY_DIR}")
-  add_test(NAME flattests COMMAND flattests)
 endif()
