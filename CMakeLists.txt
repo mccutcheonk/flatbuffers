@@ -189,6 +189,8 @@ set(ConfigPackageLocation share/cmake/FlatBuffers)
 
 # copy all the include files to the install dir
 install(DIRECTORY include/flatbuffers DESTINATION include)
+install(FILES "${PROJECT_BINARY_DIR}/include/flatbuffers/options.h"
+  DESTINATION include/flatbuffers)
 
 #--------------------------------------------------
 # install the flatc executable and add it to EXPORT
@@ -206,11 +208,9 @@ install(
 #--------------------------------------------------
 # create target IMPORT file in the BUILD dir
 #--------------------------------------------------
-export(
-  EXPORT    FlatBuffersTargets
-  FILE      "${CMAKE_CURRENT_BINARY_DIR}/FlatBuffersTargets.cmake"
-#  NAMESPACE FlatBuffers::
-)
+install(EXPORT FlatBuffersTargets
+  FILE FlatBuffersTargets.cmake
+  DESTINATION .)
 
 #--------------------------------------------------
 # Install IMPORT file in the INSTALL rule
