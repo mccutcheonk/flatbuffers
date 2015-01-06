@@ -202,7 +202,7 @@ install(
   LIBRARY  DESTINATION lib
   ARCHIVE  DESTINATION lib
   RUNTIME  DESTINATION bin
-  INCLUDES DESTINATION include
+  PUBLIC_HEADER DESTINATION include
 )
 
 #--------------------------------------------------
