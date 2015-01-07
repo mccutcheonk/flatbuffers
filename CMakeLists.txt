@@ -246,9 +246,8 @@ install(
 # Setup include files for the BUILD dir and source location
 #--------------------------------------------------
 set(FLATBUFFERS_INCLUDE_DIRS
-#  "${PROJECT_BINARY_DIR}/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include"
-)
+  "${PROJECT_BINARY_DIR}/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/FlatBuffersConfig.cmake"
   @ONLY
@@ -258,9 +257,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in
 # Generate the FlatBuffersConfig.cmake file
 # Setup include files for the INSTALL dir
 #--------------------------------------------------
-set(FLATBUFFERS_INCLUDE_DIRS
-  "${CMAKE_INSTALL_PREFIX}/include"
-)
+set(FLATBUFFERS_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
+
 # configure the Config file into a temp location
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CMake/FlatBuffersConfig.cmake.in
   "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/FlatBuffersConfig.cmake"
