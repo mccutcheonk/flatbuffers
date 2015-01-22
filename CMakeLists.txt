@@ -111,15 +111,6 @@ function(compile_flatbuffers_schema_to_cpp SRC_FBS)
     DEPENDS flatc)
 endfunction()
 
-add_executable(flatc ${FlatBuffers_Compiler_SRCS})
-
-if(FLATBUFFERS_INSTALL)
-  install(DIRECTORY include/flatbuffers DESTINATION include)
-  if(FLATBUFFERS_BUILD_FLATC)
-    install(TARGETS flatc DESTINATION bin)
-  endif()
-endif()
-
 if(FLATBUFFERS_BUILD_TESTS)
   compile_flatbuffers_schema_to_cpp(tests/monster_test.fbs)
   include_directories(${CMAKE_CURRENT_BINARY_DIR}/tests)
