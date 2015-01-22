@@ -128,6 +128,8 @@ struct Monster FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   int16_t mana() const { return GetField<int16_t>(6, 150); }
   int16_t hp() const { return GetField<int16_t>(8, 100); }
   const flatbuffers::String *name() const { return GetPointer<const flatbuffers::String *>(10); }
+  bool KeyCompareLessThan(const Monster *o) const { return *name() < *o->name(); }
+  int KeyCompareWithValue(const char *val) const { return strcmp(name()->c_str(), val); }
   const flatbuffers::Vector<uint8_t> *inventory() const { return GetPointer<const flatbuffers::Vector<uint8_t> *>(14); }
   Color color() const { return static_cast<Color>(GetField<int8_t>(16, 8)); }
   Any test_type() const { return static_cast<Any>(GetField<uint8_t>(18, 0)); }
@@ -243,9 +245,11 @@ inline const Monster *GetMonster(const void *buf) { return flatbuffers::GetRoot<
 
 inline bool VerifyMonsterBuffer(flatbuffers::Verifier &verifier) { return verifier.VerifyBuffer<Monster>(); }
 
-inline void FinishMonsterBuffer(flatbuffers::FlatBufferBuilder &fbb, flatbuffers::Offset<Monster> root) { fbb.Finish(root, "MONS"); }
+inline const char *MonsterIdentifier() { return "MONS"; }
 
-inline bool MonsterBufferHasIdentifier(const void *buf) { return flatbuffers::BufferHasIdentifier(buf, "MONS"); }
+inline bool MonsterBufferHasIdentifier(const void *buf) { return flatbuffers::BufferHasIdentifier(buf, MonsterIdentifier()); }
+
+inline void FinishMonsterBuffer(flatbuffers::FlatBufferBuilder &fbb, flatbuffers::Offset<Monster> root) { fbb.Finish(root, MonsterIdentifier()); }
 
 }  // namespace Example
 }  // namespace MyGame
