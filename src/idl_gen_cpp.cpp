@@ -68,8 +68,8 @@ static std::string GenTypePointer(const Parser &parser, const Type &type) {
     case BASE_TYPE_STRING:
       return "flatbuffers::String";
     case BASE_TYPE_VECTOR:
-      return "flatbuffers::Vector<" +
-             GenTypeWire(parser, type.VectorType(), "", false) + ">";
+      return "flatbuffers::Vector< " +
+             GenTypeWire(parser, type.VectorType(), "", false) + " >";
     case BASE_TYPE_STRUCT: {
       return WrapInNameSpace(parser, *type.struct_def);
     }
@@ -88,7 +88,7 @@ static std::string GenTypeWire(const Parser &parser, const Type &type,
     ? GenTypeBasic(parser, type, real_enum) + postfix
     : IsStruct(type)
       ? "const " + GenTypePointer(parser, type) + " *"
-      : "flatbuffers::Offset<" + GenTypePointer(parser, type) + ">" + postfix;
+      : "flatbuffers::Offset< " + GenTypePointer(parser, type) + " >" + postfix;
 }
 
 // Return a C++ type for any type (scalar/pointer) that reflects its
@@ -156,7 +156,7 @@ static void GenEnum(const Parser &parser, EnumDef &enum_def,
       while (val++ != (*it)->value) code += "\"\", ";
       code += "\"" + (*it)->name + "\", ";
     }
-    code += "nullptr };\n  return names;\n}\n\n";
+    code += "NULL };\n  return names;\n}\n\n";
     code += "inline const char *EnumName" + enum_def.name;
     code += "(" + enum_def.name + " e) { return EnumNames" + enum_def.name + "()[e";
     if (enum_def.vals.vec.front()->value)
@@ -183,9 +183,9 @@ static void GenEnum(const Parser &parser, EnumDef &enum_def,
       if (!ev.value) {
         code_post += ": return true;\n";  // "NONE" enum value.
       } else {
-        code_post += ": return verifier.VerifyTable(reinterpret_cast<const ";
+        code_post += ": return verifier.VerifyTable(reinterpret_cast< const ";
         code_post += WrapInNameSpace(parser, *ev.struct_def);
-        code_post += " *>(union_obj));\n";
+        code_post += " * >(union_obj));\n";
       }
     }
     code_post += "    default: return false;\n  }\n}\n\n";
@@ -199,7 +199,7 @@ static void GenEnum(const Parser &parser, EnumDef &enum_def,
 std::string GenUnderlyingCast(const Parser &parser, const FieldDef &field,
                               bool from, const std::string &val) {
   return field.value.type.enum_def && IsScalar(field.value.type.base_type)
-      ? "static_cast<" + GenTypeBasic(parser, field.value.type, from) + ">(" +
+      ? "static_cast< " + GenTypeBasic(parser, field.value.type, from) + " >(" +
         val + ")"
       : val;
 }
@@ -227,10 +227,10 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
       code += field.name + "() const { return ";
       // Call a different accessor for pointers, that indirects.
       std::string call = IsScalar(field.value.type.base_type)
-        ? "GetField<"
-        : (IsStruct(field.value.type) ? "GetStruct<" : "GetPointer<");
+        ? "GetField< "
+        : (IsStruct(field.value.type) ? "GetStruct< " : "GetPointer< ");
       call += GenTypeGet(parser, field.value.type, "", "const ", " *", false);
-      call += ">(" + NumToString(field.value.offset);
+      call += " >(" + NumToString(field.value.offset);
       // Default value as second arg for non-pointer types.
       if (IsScalar(field.value.type.base_type))
         call += ", " + field.value.constant;
@@ -243,7 +243,7 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
         assert(nested_root);  // Guaranteed to exist by parser.
         code += "  const " + nested_root->name + " *" + field.name;
         code += "_nested_root() { return flatbuffers::GetRoot<";
-        code += nested_root->name + ">(" + field.name + "()->Data()); }\n";
+        code += nested_root->name + " >(" + field.name + "()->Data()); }\n";
       }
       // Generate a comparison function for this field if it is a key.
       if (field.key) {
@@ -336,8 +336,8 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
       code += GenTypeWire(parser, field.value.type, " ", true) + field.name;
       code += ") { fbb_.Add";
       if (IsScalar(field.value.type.base_type)) {
-        code += "Element<" + GenTypeWire(parser, field.value.type, "", false);
-        code += ">";
+        code += "Element< " + GenTypeWire(parser, field.value.type, "", false);
+        code += " >";
       } else if (IsStruct(field.value.type)) {
         code += "Struct";
       } else {
@@ -355,9 +355,9 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
   code += "{ start_ = fbb_.StartTable(); }\n";
   code += "  " + struct_def.name + "Builder &operator=(const ";
   code += struct_def.name + "Builder &);\n";
-  code += "  flatbuffers::Offset<" + struct_def.name;
-  code += "> Finish() {\n    auto o = flatbuffers::Offset<" + struct_def.name;
-  code += ">(fbb_.EndTable(start_, ";
+  code += "  flatbuffers::Offset< " + struct_def.name;
+  code += " > Finish() {\n    auto o = flatbuffers::Offset< " + struct_def.name;
+  code += " >(fbb_.EndTable(start_, ";
   code += NumToString(struct_def.fields.vec.size()) + "));\n";
   for (auto it = struct_def.fields.vec.begin();
        it != struct_def.fields.vec.end();
@@ -372,7 +372,7 @@ static void GenTable(const Parser &parser, StructDef &struct_def,
 
   // Generate a convenient CreateX function that uses the above builder
   // to create a table in one go.
-  code += "inline flatbuffers::Offset<" + struct_def.name + "> Create";
+  code += "inline flatbuffers::Offset< " + struct_def.name + " > Create";
   code += struct_def.name;
   code += "(flatbuffers::FlatBufferBuilder &_fbb";
   for (auto it = struct_def.fields.vec.begin();
@@ -652,15 +652,15 @@ std::string GenerateCPP(const Parser &parser,
       // The root datatype accessor:
       code += "inline const " + name + " *Get";
       code += name;
-      code += "(const void *buf) { return flatbuffers::GetRoot<";
-      code += name + ">(buf); }\n\n";
+      code += "(const void *buf) { return flatbuffers::GetRoot< ";
+      code += name + " >(buf); }\n\n";
 
       // The root verifier:
       code += "inline bool Verify";
       code += name;
       code += "Buffer(flatbuffers::Verifier &verifier) { "
-              "return verifier.VerifyBuffer<";
-      code += name + ">(); }\n\n";
+              "return verifier.VerifyBuffer< ";
+      code += name + " >(); }\n\n";
 
       if (parser.file_identifier_.length()) {
         // Return the identifier
@@ -677,8 +677,8 @@ std::string GenerateCPP(const Parser &parser,
 
       // Finish a buffer with a given root object:
       code += "inline void Finish" + name;
-      code += "Buffer(flatbuffers::FlatBufferBuilder &fbb, flatbuffers::Offset<";
-      code += name + "> root) { fbb.Finish(root";
+      code += "Buffer(flatbuffers::FlatBufferBuilder &fbb, flatbuffers::Offset< ";
+      code += name + " > root) { fbb.Finish(root";
       if (parser.file_identifier_.length())
         code += ", " + name + "Identifier()";
       code += "); }\n\n";
